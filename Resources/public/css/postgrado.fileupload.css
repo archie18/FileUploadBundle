@@ -103,3 +103,8 @@
   color: #eb3c3c;
   font-size: 16px;
 }
+
+/* Override bootstrap td border-top */
+.table-wrapper td {
+    border-top: none !important;
+}

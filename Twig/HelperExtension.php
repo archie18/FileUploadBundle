@@ -29,6 +29,8 @@ class HelperExtension extends \Twig_Extension
         return array(
             'fileupload_max_file_size' => new \Twig_Function_Method($this, 'fileuploadMaxFileSize'),
             'fileupload_accepted_file_types' => new \Twig_Function_Method($this, 'fileuploadAcceptedFileTypes'),
+            'fileupload_config' => new \Twig_Function_Method($this, 'fileuploadConfiguration'),
+            'fileupload_generate_field_label' => new \Twig_Function_Method($this, 'generateUploadFieldLabel'),
         );
     }
     
@@ -75,6 +77,29 @@ class HelperExtension extends \Twig_Extension
         } else {
             return $this->container->getParameter('melolab_biogestion_fileupload.accepted_file_types');
         }
+    }
+    
+    /**
+     * Returns the raw bundle configuration
+     * @return array the raw bundle configuration
+     */
+    public function fileuploadConfiguration() {
+        return $this->container->getParameter('melolab_biogestion_fileupload.mappings');
+    }
+    
+    public function generateUploadFieldLabel($fieldName) {
+        // Split by camel case
+        // Credits: http://stackoverflow.com/a/7729790
+        $re = '/(?#! splitCamelCase Rev:20140412)
+            # Split camelCase "words". Two global alternatives. Either g1of2:
+              (?<=[a-z])      # Position is after a lowercase,
+              (?=[A-Z])       # and before an uppercase letter.
+            | (?<=[A-Z])      # Or g2of2; Position is after uppercase,
+              (?=[A-Z][a-z])  # and before upper-then-lower case.
+            /x';
+        $parts = preg_split($re, $fieldName);
+        
+        return ucfirst(implode(' ', $parts));
     }
 
     public function getName()

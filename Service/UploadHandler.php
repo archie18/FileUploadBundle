@@ -7,13 +7,14 @@ use RuntimeException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Form\Form;
 use Symfony\Component\Form\FormFactoryInterface;
+use Symfony\Component\Form\FormTypeInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\SecurityContext;
-use Symfony\Component\Translation\Translator;
+use Symfony\Component\Translation\TranslatorInterface;
 
 /*
  * To change this template, choose Tools | Templates
@@ -36,7 +37,7 @@ class UploadHandler {
     /* @var $securityContext SecurityContext */
     private $securityContext;
 
-    /* @var $translator Translator */
+    /* @var $translator TranslatorInterface */
     private $translator;
     
     /* @var FormFactoryInterface $formFactory */
@@ -45,7 +46,7 @@ class UploadHandler {
     /* @var RouterInterface $router */
     private $router;
 
-    public function __construct(EntityManager $em, ContainerInterface $container, SecurityContext $securityContext, Translator $translator, FormFactoryInterface $formFactory, RouterInterface $router) {
+    public function __construct(EntityManager $em, ContainerInterface $container, SecurityContext $securityContext, TranslatorInterface $translator, FormFactoryInterface $formFactory, RouterInterface $router) {
         $this->em = $em;
         $this->container = $container;
         $this->securityContext = $securityContext;
@@ -58,11 +59,11 @@ class UploadHandler {
      * Handle AJAX file uploads
      * 
      * @param Request $request The HTTP request
-     * @param type $id The entity ID. If ID == 0 a new (to be created) entity is assumed
+     * @param int $id The entity ID. If ID == 0 a new (to be created) entity is assumed
      * @return Response
      * @throws Exception
      */
-    public function handleUpload(Request $request, $id) {
+    public function handleUpload(Request $request, $id, FormTypeInterface $formType = null) {
         // Get mapping key for config access
         $mapping = $request->query->get('mapping');
         if (!$mapping) {
@@ -70,8 +71,12 @@ class UploadHandler {
         }
         
         $entityClass = $this->container->getParameter('melolab_biogestion_fileupload.mappings')[$mapping]['entity'];
-        $formType = $this->container->getParameter('melolab_biogestion_fileupload.mappings')[$mapping]['form_type'];
+        $repository_method = $this->container->getParameter('melolab_biogestion_fileupload.mappings')[$mapping]['repository_method'];
+        if (!$formType) {
+            $formType = $this->container->getParameter('melolab_biogestion_fileupload.mappings')[$mapping]['form_type'];
+        }
         $fileField = $this->container->getParameter('melolab_biogestion_fileupload.mappings')[$mapping]['file_field'];
+        $allowAnonymousUploads = $this->container->getParameter('melolab_biogestion_fileupload.mappings')[$mapping]['allow_anonymous_uploads'];
 //        var_dump($this->get('vich_uploader.metadata_reader')->getUploadableFields(\Symfony\Component\Security\Core\Util\ClassUtils::getRealClass($lr)));
 //        var_dump($this->container->getParameter('melolab_biogestion_fileupload.mappings'));
 //        var_dump($this->container->getParameter('vich_uploader.mappings')); die();
@@ -80,14 +85,14 @@ class UploadHandler {
         if ($id) {
             $this->em->clear(); // Clear EntityManager to fetch a fresh copy
 
-            $entity = $this->em->getRepository($entityClass)->find($id);
+            $entity = $this->em->getRepository($entityClass)->$repository_method($id);
 
             if (!$entity) {
                 throw new NotFoundHttpException($this->translator->trans('file.entity_not_found'));
             }
 
             // Security
-            if (false === $this->securityContext->isGranted('EDIT', $entity)) {
+            if (false === $allowAnonymousUploads && false === $this->securityContext->isGranted('EDIT', $entity)) {
                 throw new AccessDeniedException();
             }
         }
@@ -96,7 +101,7 @@ class UploadHandler {
             $entity = new $entityClass();
 
             // Security
-            if (false === $this->securityContext->isGranted('CREATE', $entity)) {
+            if (false === $allowAnonymousUploads && false === $this->securityContext->isGranted('CREATE', $entity)) {
                 throw new AccessDeniedException();
             }
         }
@@ -159,9 +164,9 @@ class UploadHandler {
                 // Check whether php.ini POST_MAX_SIZE was exceeded
                 // Source: http://andrewcurioso.com/2010/06/detecting-file-size-overflow-in-php/
                 if ( $_SERVER['REQUEST_METHOD'] == 'POST' && empty($_POST) && empty($_FILES) && $_SERVER['CONTENT_LENGTH'] > 0 ) {
-                    $errorMessages[] = $this->get('translator')->trans('file.upload.post_max_size_error');
+                    $errorMessages[] = $this->translator->trans('file.upload.post_max_size_error');
                 } else { // Unknown error. Form did not validate?
-                    $errorMessages[] = $this->get('translator')->trans('file.upload.unknown_error');
+                    $errorMessages[] = $this->translator->trans('file.upload.unknown_error');
                 }
             }
 

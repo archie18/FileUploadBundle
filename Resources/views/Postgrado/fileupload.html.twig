@@ -4,8 +4,16 @@
  #}
 
 {# Check variables #}
-{% if entity is defined %}
-    {% set filename = attribute(entity, field_name ~ 'Name') %}
+{% if mapping %}
+    {% if not field_name is defined %}
+        {% set field_name = fileupload_config()[mapping]['file_field'] %}
+    {% endif %}
+    {% if not filename_getter is defined %}
+        {% set filename_getter = fileupload_config()[mapping]['filename_getter'] %}
+    {% endif %}
+{% endif %}
+{% if not filename is defined and entity is defined %}
+    {% set filename = attribute(entity, filename_getter) %}
 {% else %}
     {% set filename = false %}
 {% endif %}
@@ -19,9 +27,16 @@
 {% if not enable_delete is defined %}
     {% set enable_delete = false %}
 {% endif %}
-{% if not links_label is defined %}
-    {% set links_label =  'file.file'|trans  %}
+{% if not errors is defined and form is defined and field_name is defined %}
+    {% set errors = form_errors(attribute(form, field_name)) %}
 {% endif %}
+{% if not field_label is defined and field_name is defined %}
+    {% set field_label =  fileupload_generate_field_label(field_name) %}
+{% endif %}
+{#{% if not links_label is defined and field_label is defined %}
+    {% set links_label =  field_label ~ ':' %}
+{% endif %}
+#}
 
 
 <!-- MeloLabBioGestionFileUploadBundle - Configuration -->
@@ -40,8 +55,9 @@
     <div><b>{{ field_label }}</b></div>
     
     <div{% if not filename %} style="display: none" {% endif %}>
-        {{ links_label }} <a target="_blank" class="linkPdf file-download-link" href="{% if entity_id %}{{ path(download_route, {'id': entity_id, 'mapping': mapping})}}{% endif %}">{{ 'file.download'|trans }}<span class="glyphicon glyphicon-download-alt" style="margin-left: 2px;"></span></a>
-        | <a href="javascript:void(0)" onclick="$(this).parent().nextAll('.file-input').toggle(200)">{{ 'file.replace'|trans }}<span class="glyphicon glyphicon-refresh" style="margin-left: 2px;"></span></a>
+        {% if links_label is defined %}{{ links_label }} {% endif %}<a target="_blank" class="linkPdf file-download-link" href="{% if entity_id %}{{ path(download_route, {'id': entity_id, 'mapping': mapping})}}{% endif %}">{{ 'file.download'|trans }}<span class="glyphicon glyphicon-download-alt" style="margin-left: 2px;"></span></a>
+{#        | <a href="javascript:void(0)" class="file-replace-link">{{ 'file.replace'|trans }}<span class="glyphicon glyphicon-triangle-bottom" style="margin-left: 2px;"></span></a>#}
+        | <a href="javascript:void(0)" class="file-replace-link">{{ 'file.replace'|trans }}<span class="mdi mdi-menu-down" style="margin-left: -3px; font-size: 1.3em; vertical-align: sub"></span></a>
         {% if enable_delete %}
             | <a href="javascript:void(0)" class="file-delete-link">{{ 'file.delete'|trans }}<span class="glyphicon glyphicon-trash" style="margin-left: 2px;"></span></a>
         {% endif %}
@@ -53,7 +69,7 @@
                 <span class="glyphicon glyphicon-folder-open" style="margin-right: 4px"></span>
                 <span>{{ 'file.select_file'|trans }}</span>
                 <!-- The file input field used as target for the file upload widget -->
-                {{ form_widget(form_field) }}
+                {{ form_widget(form_field, {'attr': {'data-mapping': mapping}}) }}
             </span>
             <!-- The table listing the files available for upload/download -->
             <div class="table-wrapper">

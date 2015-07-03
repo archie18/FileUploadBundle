@@ -45,6 +45,7 @@ function FileUploadOptions () {
                 $(this).find('.file-download-link').prop('href', data.result.files[0].url);
                 if (!$(this).find('.file-download-link').is(':visible')) {
                     $(this).find('.file-download-link').parent().slideDown(200);
+                    toggleFileReplaceLinkIcon($(this).find('.file-replace-link'));
                 }
             }
 
@@ -131,6 +132,15 @@ function bindBioGestionFileUpload() {
     });
 }
 
+/**
+ * Toggle file replace link icon. The element is expected to be the clicked link
+ * @param {type} elem
+ * @returns {undefined}
+ */
+function toggleFileReplaceLinkIcon(elem) {
+        $(elem).find('span').toggleClass('mdi-menu-down').toggleClass('mdi-menu-up');
+}
+
 $(document).ready(function() {
 
     // Bind MeloLabBioGestionFileUpload widget
@@ -139,5 +149,11 @@ $(document).ready(function() {
     // Hide global error messages
     $(document).on('click', '.cancel', function (e, data) {
         $('.global-error').text('');
+    });
+    
+    // Show/hide file replace dialog
+    $(document).on('click', '.file-replace-link', function (e, data) {
+        $(this).parent().nextAll('.file-input').toggle(200);
+        toggleFileReplaceLinkIcon(this);
     });
 });
