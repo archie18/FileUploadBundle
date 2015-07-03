@@ -1,0 +1,105 @@
+/* 
+ * Styles for jQuery-File-Upload integration.
+ * 
+ * @author Andreas Schueller <aschueller@bio.puc.cl>
+ */
+
+/* jQuery file upload */
+.fileupload-buttonbar {
+    /*float: left;*/
+}
+/* File uploads jQuery progressbar */
+.ui-progressbar-value {
+    background: url('../../melolabbiogestionpostulacion/images/biogestion-jquery/ui-bg_highlight-hard_26_3361a8_1x100.png') repeat-x scroll 50% 50% #3361a8;
+}
+.fileupload-progress {
+    display: none;
+    margin-left: 10px;
+    /*float: left;*/
+    width: 400px;
+}
+.ui-progressbar {
+    position: relative;
+    height: 28px;
+}
+.progress-label {
+    position: absolute;
+    top: 4px;
+    width: 100%;
+    text-align: center;
+    font-weight: bold;
+}
+
+/* Template for file to be uploaded */
+.template-upload .name {
+    word-break: break-all;
+    max-width: 200px;
+}
+
+/* Template for uploaded file */
+.template-download .name {
+    word-break: break-all;
+    max-width: 200px;
+}
+
+/* Template table */
+.file-input .table {
+    margin: 0;
+}
+.file-input .table td {
+    /*background-color: #eeeeee !important;*/
+    vertical-align: middle;
+}
+.file-input .table td:last-child {
+    text-align: right;
+}
+.file-input .table p {
+    margin: 0;
+}
+
+/* Select file button */
+.fileinput-button {
+    margin-top: 5px;
+/*    margin-bottom: 20px;
+    vertical-align: top;*/
+}
+
+.form-control[disabled], .form-control[readonly], fieldset[disabled] .form-control {
+    opacity: 0.5;
+}
+
+.global-error {
+    /*padding-left: 145px;*/
+}
+
+.file-input-wrap a:link {
+    font-weight: normal;
+}
+
+.file-input-wrap .status-menu-icon {
+    float:left;
+    margin-right: 10px;
+}
+
+.file-input-wrap .table-wrapper {
+    width: 425px;
+    display: inline-block;
+    vertical-align: middle;    
+}
+
+.form-error .file-input .table-wrapper {
+    width: 417px;
+}
+
+/* Status OK: glyphicon-ok */
+.status-ok:before {
+  content: "\e013";
+  color: #9ACD32;
+}
+
+/* Status nope: glyphicon-remove */
+.status-nope:before {
+  content: "\e014";
+  color: #eb3c3c;
+  font-size: 16px;
+}

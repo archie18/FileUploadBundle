@@ -1,0 +1,32 @@
+# File upload translations
+
+# File upload template: MeloLabBioGestionProductivityBundle:Upload:jquery-fileupload.html.twig
+# Also used in the controllers
+file.download:                                  Descargar
+file.replace:                                   Reemplazar
+file.delete:                                    Borrar
+file.file_not_found:                            El archivo no se ha encontrado.
+file.entity_not_found:                          El objeto no se ha encontrado.
+file.select_file:                               Seleccione...
+file.loading:                                   Cargando...
+file.upload.unknown_error:                      El archivo no pudo ser subido.
+file.upload.post_max_size_error:                El archivo es muy grande.
+file.delete.confirm:                            ¿Desea borrar este archivo?
+file.mapping_not_found:                         La información de mapeo no se ha encontrado.
+file.file:                                      Archivo
+
+# jQuery-File-Upload
+jquery-fileupload.max_file_size:                'El tamaño máximo permitido es de %size% MB'
+jquery-fileupload.min_file_size:                'El archivo es muy pequeño'
+jquery-fileupload.accept_file_types:            'El tipo de archivo no está permitido'
+jquery-fileupload.max_number_of_files:          'No se puede agregar más que un archivo'
+jquery-fileupload.uploaded_bytes:               'Los bytes subidos superan el tamaño del archivo'
+jquery-fileupload.empty_result:                 'El archivo está vacido'
+jquery-fileupload.unknown_error:                'Error desconocido'
+jquery-fileupload.processing:                   'Procesando...'
+jquery-fileupload.start:                        'Subir'
+jquery-fileupload.error:                        'Error'
+jquery-fileupload.delete:                       'Borrar'
+jquery-fileupload.cancel:                       'Cancelar'
+jquery-fileupload.close:                        'Cerrar'
+

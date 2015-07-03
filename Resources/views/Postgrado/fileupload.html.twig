@@ -1,0 +1,68 @@
+{##
+ # HTML include to render the file upload form field.
+ # @author Andreas Schueller <aschueller@bio.puc.cl>
+ #}
+
+{# Check variables #}
+{% if entity is defined %}
+    {% set filename = attribute(entity, field_name ~ 'Name') %}
+{% else %}
+    {% set filename = false %}
+{% endif %}
+{% set form_field = attribute(form, field_name) %}
+{% if not entity_id is defined and entity is defined %}
+    {% set entity_id = entity.id %}
+{% endif %}
+{% if not download_route is defined %}
+    {% set download_route = 'biogestion_fileupload_download' %}
+{% endif %}
+{% if not enable_delete is defined %}
+    {% set enable_delete = false %}
+{% endif %}
+{% if not links_label is defined %}
+    {% set links_label =  'file.file'|trans  %}
+{% endif %}
+
+
+<!-- MeloLabBioGestionFileUploadBundle - Configuration -->
+<script type="text/javascript">
+//<![CDATA[
+    var maxFileSize = '{{ fileupload_max_file_size('rotation_report') }}';
+    var acceptedFileTypes = {{ fileupload_accepted_file_types('rotation_report') }};
+//]]>
+</script> 
+   
+<div class="file-input-wrap fileupload-anchor{% if errors is defined and errors is not empty %} form-error{% endif %}">
+    {% if errors is defined and errors is not empty %}
+        {{ errors|raw }}
+    {% endif %}
+    <div class="status-menu-icon glyphicon {% if filename %}status-ok{% else %}status-nope{% endif %}"></div>
+    <div><b>{{ field_label }}</b></div>
+    
+    <div{% if not filename %} style="display: none" {% endif %}>
+        {{ links_label }} <a target="_blank" class="linkPdf file-download-link" href="{% if entity_id %}{{ path(download_route, {'id': entity_id, 'mapping': mapping})}}{% endif %}">{{ 'file.download'|trans }}<span class="glyphicon glyphicon-download-alt" style="margin-left: 2px;"></span></a>
+        | <a href="javascript:void(0)" onclick="$(this).parent().nextAll('.file-input').toggle(200)">{{ 'file.replace'|trans }}<span class="glyphicon glyphicon-refresh" style="margin-left: 2px;"></span></a>
+        {% if enable_delete %}
+            | <a href="javascript:void(0)" class="file-delete-link">{{ 'file.delete'|trans }}<span class="glyphicon glyphicon-trash" style="margin-left: 2px;"></span></a>
+        {% endif %}
+    </div>
+    <div class="file-input" style="{% if not filename or form_errors(form_field) %}display: block{% endif %}">
+        <!-- jQuery File Upload -->
+        <div class="fileupload-buttonbar">
+            <span class="btn btn-primary fileinput-button">
+                <span class="glyphicon glyphicon-folder-open" style="margin-right: 4px"></span>
+                <span>{{ 'file.select_file'|trans }}</span>
+                <!-- The file input field used as target for the file upload widget -->
+                {{ form_widget(form_field) }}
+            </span>
+            <!-- The table listing the files available for upload/download -->
+            <div class="table-wrapper">
+                <table role="presentation" class="table"><tbody class="files"></tbody></table>
+            </div>
+        </div>
+        <div><strong class="global-error text-danger"></strong></div>
+
+        <!-- End jQuery File Upload -->
+    </div>
+</div>
+<div style="clear:both"></div>
