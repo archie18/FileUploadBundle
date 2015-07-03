@@ -21,6 +21,11 @@ class MeloLabBioGestionFileUploadExtension extends Extension
     {
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
+        
+        // Set configuration default values
+        var_dump($config);
+        $config = $this->setConfigurationDefaultValues($config);
+        var_dump($config);
 
         // Store params in container
         $container->setParameter('melolab_biogestion_fileupload.max_file_size', $config['max_file_size']);
@@ -30,6 +35,44 @@ class MeloLabBioGestionFileUploadExtension extends Extension
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');
 //        $loader->load('config.yml');
+    }
+    
+    /**
+     * Sets some default values of the bundle configuration
+     * @param array $config Bundle configuration array
+     * @return array Bundle configuration with added default values
+     */
+    private function setConfigurationDefaultValues(array $config) {
+        foreach ($config as $key0 => $val0) {
+            if ('mappings' == $key0) {
+                foreach ($val0 as $key1 => $val1) {
+                    // Set default file_field value
+                    if (!isset($val1['file_field'])) {
+                        $parts = explode('_', $key1);
+                        for ($i = 0; $i < count($parts); $i++) {
+                            if ($i > 0) {
+                                $parts[$i] = ucfirst($parts[$i]); // Capitalize first letter, except for the first part
+                            }
+                        }
+                        $config[$key0][$key1]['file_field'] = implode('', $parts);
+                    }
+                    // Set default file_getter value
+                    if (!isset($val1['file_getter'])) {
+                        $config[$key0][$key1]['file_getter'] = 'get'.ucfirst($config[$key0][$key1]['file_field']);
+                    }
+                    // Set default filename_getter value
+                    if (!isset($val1['filename_getter'])) {
+                        $config[$key0][$key1]['filename_getter'] = 'get'.ucfirst($config[$key0][$key1]['file_field']).'Name';
+                    }
+                    // Set default vich_mapping
+                    if (!isset($val1['vich_mapping'])) {
+                        $config[$key0][$key1]['vich_mapping'] = $key1;
+                    }
+                }
+            }
+        }
+        
+        return $config;
     }
     
     /**
