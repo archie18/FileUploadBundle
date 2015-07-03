@@ -23,9 +23,7 @@ class MeloLabBioGestionFileUploadExtension extends Extension
         $config = $this->processConfiguration($configuration, $configs);
         
         // Set configuration default values
-        var_dump($config);
         $config = $this->setConfigurationDefaultValues($config);
-        var_dump($config);
 
         // Store params in container
         $container->setParameter('melolab_biogestion_fileupload.max_file_size', $config['max_file_size']);
