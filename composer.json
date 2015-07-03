@@ -1,0 +1,28 @@
+{
+    "name": "archie18/file-upload-bundle",
+    "type": "symfony-bundle",
+    "description": "Bundle that provides AJAX file uploads managed via blueimp/jQuery-File-Upload and dustin10/VichUploaderBundle.",
+    "keywords": ["Symfony2", "bundle", "upload", "file", "jQuery"],
+    "license": "Proprietary",
+    "homepage": "https://github.com/archie18/FileUploadBundle",
+    "authors": [
+        {
+            "name": "Andreas Schueller",
+            "email": "apschueller@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.3",
+        "symfony/symfony": "~2.0",
+        "doctrine/orm": "~2.2"
+    },
+    "autoload": {
+        "psr-0": { "MeloLab\\BioGestion\\FileUploadBundle": "" }
+    },
+    "target-dir": "MeloLab/BioGestion/FileUploadBundle",
+    "extra": {
+        "branch-alias": {
+            "dev-master": "0.1.x-dev"
+        }
+    }
+}
