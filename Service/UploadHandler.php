@@ -136,7 +136,9 @@ class UploadHandler {
 //                $response['formAction'] = $this->generateUrl('eva_research_ref_create', array('id' => $entity->getId()));
 //            }
             
-            $response['files'][0]['url'] = $this->router->generate('biogestion_fileupload_download', array('id' => $entity->getId(), 'mapping' => $mapping));
+            // TO-DO: 'id' => $id will break for newly created objects
+            // However, $entity->getId() does not work when, e.g. a token is used.
+            $response['files'][0]['url'] = $this->router->generate('biogestion_fileupload_download', array('id' => $id, 'mapping' => $mapping));
             //'deleteUrl' => '',
             //'deleteType' => 'DELETE',
             
