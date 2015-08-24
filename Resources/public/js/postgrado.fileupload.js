@@ -64,11 +64,11 @@ function FileUploadOptions () {
             if (e.isDefaultPrevented()) {
                 return false;
             }
-            $('.global-error').text(''); // Remove any previous error messages
             var $this = $(this),
                 that = $this.data('blueimp-fileupload') ||
                     $this.data('fileupload'),
                 options = that.options;
+            $this.find('.global-error').text(''); // Remove any previous error messages
             data.context = that._renderUpload(data.files)
                 .data('data', data)
                 .addClass('processing');
@@ -101,7 +101,7 @@ function FileUploadOptions () {
                         var error = data.files[index].error;
                         if (error) {
     //                        $(this).find('.error').text(error);
-                            $('.global-error').text(error);
+                            $this.find('.global-error').text(error);
                         }
                     });
                 }
