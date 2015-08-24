@@ -16,7 +16,7 @@ file.mapping_not_found:                         No mapping information found in 
 file.file:                                      File
 
 # jQuery-File-Upload
-jquery-fileupload.max_file_size:                'File is too large. Allowed maximum size is %size%.'
+jquery-fileupload.max_file_size:                'File is too large. Allowed maximum size is %size% MB.'
 jquery-fileupload.min_file_size:                'File is too small'
 jquery-fileupload.accept_file_types:            'Filetype not allowed'
 jquery-fileupload.max_number_of_files:          'Max number of files exceeded'
