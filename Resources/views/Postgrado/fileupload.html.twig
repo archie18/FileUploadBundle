@@ -51,7 +51,7 @@
     {% if errors is defined and errors is not empty %}
         {{ errors|raw }}
     {% endif %}
-    <div class="status-menu-icon glyphicon {% if filename %}status-ok{% else %}status-nope{% endif %}"></div>
+{#    <div class="status-menu-icon glyphicon {% if filename %}status-ok{% else %}status-nope{% endif %}"></div>#}
     <div><b>{{ field_label }}</b></div>
     
     <div{% if not filename %} style="display: none" {% endif %}>
