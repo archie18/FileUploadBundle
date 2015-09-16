@@ -119,11 +119,19 @@ class UploadHandler {
         $errorMessages = array();
         $ok = true;
         $file = $form->get($fileField)->getData();
-        $response = array('files' => array(array(
-            'name' => $file->getClientOriginalName() ,
-            'size' => $file->getClientSize(),
-            'type' => $file->getClientMimeType(),
-        )));
+        if ($file) {
+            $response = array('files' => array(array(
+                'name' => $file->getClientOriginalName() ,
+                'size' => $file->getClientSize(),
+                'type' => $file->getClientMimeType(),
+            )));
+        } else {
+            $response = array('files' => array(array(
+                'name' => '',
+                'size' => 0,
+                'type' => '',
+            )));
+        }
 
         if ($form->isValid()) {
             
@@ -165,7 +173,7 @@ class UploadHandler {
             if (!$errorMessages) {
                 // Check whether php.ini POST_MAX_SIZE was exceeded
                 // Source: http://andrewcurioso.com/2010/06/detecting-file-size-overflow-in-php/
-                if ( $_SERVER['REQUEST_METHOD'] == 'POST' && empty($_POST) && empty($_FILES) && $_SERVER['CONTENT_LENGTH'] > 0 ) {
+                if ( isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'POST' && empty($_POST) && empty($_FILES) && isset($_SERVER['CONTENT_LENGTH']) && $_SERVER['CONTENT_LENGTH'] > 0 ) {
                     $errorMessages[] = $this->translator->trans('file.upload.post_max_size_error');
                 } else { // Unknown error. Form did not validate?
                     $errorMessages[] = $this->translator->trans('file.upload.unknown_error');
