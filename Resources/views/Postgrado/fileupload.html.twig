@@ -42,8 +42,11 @@
 <!-- MeloLabBioGestionFileUploadBundle - Configuration -->
 <script type="text/javascript">
 //<![CDATA[
-    var maxFileSize = '{{ fileupload_max_file_size('rotation_report') }}';
-    var acceptedFileTypes = {{ fileupload_accepted_file_types('rotation_report') }};
+    {% if not mapping %}
+        {% set mapping = 'rotation_report'%}
+    {% endif %}
+    var maxFileSize = '{{ fileupload_max_file_size(mapping) }}';
+    var acceptedFileTypes = {{ fileupload_accepted_file_types(mapping) }};
 //]]>
 </script> 
    
