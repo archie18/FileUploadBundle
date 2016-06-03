@@ -40,15 +40,17 @@
 
 
 <!-- MeloLabBioGestionFileUploadBundle - Configuration -->
-<script type="text/javascript">
-//<![CDATA[
-    {% if not mapping %}
-        {% set mapping = 'rotation_report'%}
-    {% endif %}
-    var maxFileSize = '{{ fileupload_max_file_size(mapping) }}';
-    var acceptedFileTypes = {{ fileupload_accepted_file_types(mapping) }};
-//]]>
-</script> 
+{#<script type="text/javascript">#}
+{#//<![CDATA[#}
+    {#{% if not mapping %}#}
+        {#{% set mapping = 'rotation_report'%}#}
+    {#{% endif %}#}
+
+    {#var maxFileSize = '{{ fileupload_max_file_size(mapping) }}';#}
+    {#var acceptedFileTypes = {{ fileupload_accepted_file_types(mapping) }};#}
+{#//    alert(maxFileSize);#}
+{#//]]>#}
+{#</script> #}
    
 <div class="file-input-wrap fileupload-anchor{% if errors is defined and errors is not empty %} form-error{% endif %}">
     {% if errors is defined and errors is not empty %}
@@ -65,14 +67,14 @@
             | <a href="javascript:void(0)" class="file-delete-link">{{ 'file.delete'|trans }}<span class="glyphicon glyphicon-trash" style="margin-left: 2px;"></span></a>
         {% endif %}
     </div>
-    <div class="file-input" style="{% if not filename or form_errors(form_field) %}display: block{% endif %}">
+    <div class="file-input" style="{% if not filename or form_errors(form_field) %}display: block{% endif %}" data-maxfilesize="{{ fileupload_max_file_size(mapping) }}" data-acceptedfiletypes="{{ fileupload_accepted_file_types(mapping)}}" >
         <!-- jQuery File Upload -->
         <div class="fileupload-buttonbar">
             <span class="btn btn-primary fileinput-button">
                 <span class="glyphicon glyphicon-paperclip" style="margin-right: 4px"></span>
                 <span>{{ 'file.select_file'|trans }}</span>
                 <!-- The file input field used as target for the file upload widget -->
-                {{ form_widget(form_field, {'attr': {'data-mapping': mapping}}) }}
+                {{ form_widget(form_field, {'attr': {'data-mapping': mapping }}) }}
             </span>
             <!-- The table listing the files available for upload/download -->
             <div class="table-wrapper">

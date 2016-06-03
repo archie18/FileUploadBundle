@@ -7,20 +7,20 @@
 /**
  * jQuery File Upload configuration
  */
-var maxFileSize = 5 * 1024 * 1024; // 5 MB default, should be overwritten by config
-var acceptedFileTypes = /(\.|\/)(pdf)$/i; // PDF default, should be overwritten by config
+// var maxFileSize = 5 * 1024 * 1024; // 5 MB default, should be overwritten by config
+// var acceptedFileTypes = /(\.|\/)(pdf)$/i; // PDF default, should be overwritten by config
 //function configureBioGestionFileUpload(maxFileSize, acceptedFileTypes) {
 //    var fileUploadOptions = {
 function FileUploadOptions () {
         this.autoUpload = true;
     //    url: url,
         this.dataType = 'json';
-        this.maxFileSize = maxFileSize;
-        this.acceptFileTypes = acceptedFileTypes;
+        this.maxFileSize = 5 * 1024 * 1024; // 5 MB default, should be overwritten by config
+        this.acceptFileTypes = /(\.|\/)(pdf)$/i; // PDF default, should be overwritten by config
         this.maxNumberOfFiles = 1;
         this.limitConcurrentUploads = 1;
         this.messages = {
-            maxFileSize: Translator.trans('jquery-fileupload.max_file_size', {size: maxFileSize / 1024 / 1024}),
+            maxFileSize: Translator.trans('jquery-fileupload.max_file_size', {size: this.maxFileSize / 1024 / 1024}),
             minFileSize: Translator.trans('jquery-fileupload.min_file_size'),
             acceptFileTypes: Translator.trans('jquery-fileupload.accept_file_types'),
             maxNumberOfFiles: Translator.trans('jquery-fileupload.max_number_of_files'),
@@ -107,13 +107,38 @@ function FileUploadOptions () {
                 }
             });
         };
+        this.setMaxFilesize = function(maxFileSize){
+            this.maxFileSize = maxFileSize;
+            this.messages.maxFileSize = Translator.trans('jquery-fileupload.max_file_size', {size: this.maxFileSize / 1024 / 1024});
+        }
 }
 
 function bindBioGestionFileUpload() {
     $(function () {
         'use strict';
-        $('.fileupload-anchor').fileupload(new FileUploadOptions());
-        
+        // var fileUploadOption = new FileUploadOptions();
+        //
+        // if($('.fileupload-anchor .file-input').data('maxfilesize') !== undefined){
+        //     console.log($('.fileupload-anchor .file-input').data('maxfilesize'));
+        //     fileUploadOption.setMaxFilesize($('.fileupload-anchor .file-input').data('maxfilesize'));
+        // }
+        // if($('.fileupload-anchor .file-input').data('acceptedfiletypes') !== undefined ){
+        //     fileUploadOption.acceptedFileTypes = $('.fileupload-anchor .file-input').data('acceptedfiletypes');
+        // }
+        //
+        // console.log(fileUploadOption);
+        // $('.fileupload-anchor').fileupload(fileUploadOption);
+        $('.fileupload-anchor').each(function(){
+            var fileUploadOption = new FileUploadOptions();
+            if($(this).find('.file-input').data('maxfilesize') !== undefined){
+                fileUploadOption.setMaxFilesize($(this).find('.file-input').data('maxfilesize'));
+            }
+            if($(this).find('.file-input').data('acceptedfiletypes') !== undefined ){
+                fileUploadOption.acceptedFileTypes = $(this).find('.file-input').data('acceptedfiletypes');
+            }
+            $(this).fileupload(fileUploadOption);
+        });
+
         // Dynamically add mapping info to action URL
         $(document).on('fileuploadsubmit', function (e, data) {
 //            console.log(e);
