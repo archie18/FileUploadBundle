@@ -63,7 +63,7 @@ class UploadHandler {
      * @return Response
      * @throws Exception
      */
-    public function handleUpload(Request $request, $id, FormTypeInterface $formType = null) {
+    public function handleUpload(Request $request, $id, FormTypeInterface $formType = null, $formOptions = array()) {
         // Get mapping key for config access
         $mapping = $request->query->get('mapping');
         if (!$mapping) {
@@ -106,7 +106,7 @@ class UploadHandler {
             }
         }
 
-        $form = $this->formFactory->create(new $formType(), $entity, array());
+        $form = $this->formFactory->create(new $formType(), $entity, $formOptions);
 
 //        // Submit form without overwriting entity values with nulls.
 //        // Actually, we just want to validate the token and file upload
