@@ -6,8 +6,11 @@ use Doctrine\ORM\EntityManager;
 use RuntimeException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Form\Form;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\Form\FormFactoryInterface;
 use Symfony\Component\Form\FormTypeInterface;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -15,6 +18,9 @@ use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\SecurityContext;
 use Symfony\Component\Translation\TranslatorInterface;
+use Vich\UploaderBundle\Exception\MappingNotFoundException;
+use Vich\UploaderBundle\Handler\AbstractHandler;
+use Vich\UploaderBundle\Mapping\PropertyMappingFactory;
 
 /*
  * To change this template, choose Tools | Templates
@@ -46,13 +52,18 @@ class UploadHandler {
     /* @var RouterInterface $router */
     private $router;
 
-    public function __construct(EntityManager $em, ContainerInterface $container, SecurityContext $securityContext, TranslatorInterface $translator, FormFactoryInterface $formFactory, RouterInterface $router) {
+    /* @var PropertyMappingFactory $propertyMappingFactory */
+    private $propertyMappingFactory;
+
+
+    public function __construct(EntityManager $em, ContainerInterface $container, SecurityContext $securityContext, TranslatorInterface $translator, FormFactoryInterface $formFactory, RouterInterface $router, PropertyMappingFactory $propertyMappingFactory) {
         $this->em = $em;
         $this->container = $container;
         $this->securityContext = $securityContext;
         $this->translator = $translator;
         $this->formFactory = $formFactory;
         $this->router = $router;
+        $this->propertyMappingFactory = $propertyMappingFactory;
     }
     
     /**
@@ -63,7 +74,7 @@ class UploadHandler {
      * @return Response
      * @throws Exception
      */
-    public function handleUpload(Request $request, $id, FormTypeInterface $formType = null, $formOptions = array()) {
+    public function handleUpload(Request $request, $id, FormTypeInterface $formType = null, $formOptions = array(), $isAdd = false) {
         // Get mapping key for config access
         $mapping = $request->query->get('mapping');
         if (!$mapping) {
@@ -133,20 +144,39 @@ class UploadHandler {
             )));
         }
 
+
+
         if ($form->isValid()) {
             
             // Persist entity
             $this->em->persist($entity);
-            $this->em->flush();
-            
+
+            if(!$isAdd){
+                $this->em->flush();
+
+                // TO-DO: 'id' => $id will break for newly created objects
+                // However, $entity->getId() does not work when, e.g. a token is used.
+                $response['files'][0]['url'] = $this->router->generate('biogestion_fileupload_download', array('id' => $id, 'mapping' => $mapping));
+            }
+            else{
+                $response['real_filename'] = $entity->getContractDigitalCopyName();
+                $response['hiddenField'] = $fileField . '_fileuploadtemp';
+
+                $tempPath = $fileField = $this->container->getParameter('melolab_biogestion_fileupload.temp_files_path');
+                $filename = $entity->getContractDigitalCopyName();
+
+                $entity->getContractDigitalCopy()->move($tempPath,$filename);
+                $response['files'][0]['url'] = $this->router->generate('biogestion_fileupload_download_temp', array('filename' => $filename, 'mapping' => $mapping));
+//                var_dump($entity->getContractDigitalCopy()->getRealPath());
+//                var_dump($entity->getContractDigitalCopyName());
+            }
+
             // Generate new form action with added ID
 //            if (!$id and $entity->getId()) {
 //                $response['formAction'] = $this->generateUrl('eva_research_ref_create', array('id' => $entity->getId()));
 //            }
             
-            // TO-DO: 'id' => $id will break for newly created objects
-            // However, $entity->getId() does not work when, e.g. a token is used.
-            $response['files'][0]['url'] = $this->router->generate('biogestion_fileupload_download', array('id' => $id, 'mapping' => $mapping));
+
             //'deleteUrl' => '',
             //'deleteType' => 'DELETE',
             
@@ -196,5 +226,65 @@ class UploadHandler {
         // https://github.com/blueimp/jQuery-File-Upload/wiki/Setup#using-jquery-file-upload-ui-version-with-a-custom-server-side-upload-handler
         return new Response(json_encode($response), 200, array('Content-Type' => $contentType));
     }
-    
+
+    public function moveUploadedFiles($entity, $form){
+
+
+        $result = true;
+
+        foreach($form->all() as $child){
+            $childName = $child->getName();
+            $splittedChildName = explode('_',$childName);
+            $stringEnd = end($splittedChildName);
+
+            if($stringEnd === 'fileuploadtemp'){
+                array_pop($splittedChildName);
+                $fileField = implode('_',$splittedChildName);
+                //$vichMapping = $this->container->get('vich_uploader.upload_handler')->getMapping($entity, $fileField)->getMappingName();
+                $vichMapping = $this->getMapping($entity, $fileField)->getMappingName();
+
+
+
+//                $vichMapping = $this->container->getParameter('melolab_biogestion_fileupload.mappings')[$mapping]['vich_mapping'];
+                $uploadFolder = $this->container->getParameter('vich_uploader.mappings')[$vichMapping]['upload_destination'];
+                $tempFolder = $this->container->getParameter('melolab_biogestion_fileupload.temp_files_path');
+//                $fileField = $this->container->getParameter('melolab_biogestion_fileupload.mappings')[$mapping]['file_field'];
+                $filename = $form->get($fileField."_fileuploadtemp")->getData();
+
+                try{
+
+                    $file = new File($tempFolder.'/'.$filename);
+                    $file->move($uploadFolder,$filename);
+                } catch(\Exception $e){
+                    $form->get($fileField)->addError(new FormError($this->translator->trans('file.upload.unknown_error')));
+                    $result = false;
+                }
+
+                $setterMethod = $this->container->getParameter('melolab_biogestion_fileupload.mappings')['contract_digital_copy']['filename_setter'];
+                $entity->$setterMethod($filename);
+            }
+        }
+
+
+        return $result;
+    }
+
+    /**
+     * Method copied from Vich\UploaderBundle\Handler\AbstractHandler::getMapping()
+     * Access changed from protected to public.
+     * @param $obj
+     * @param $fieldName
+     * @param null $className
+     * @return null|\Vich\UploaderBundle\Mapping\PropertyMapping
+     */
+    public function getMapping($obj, $fieldName, $className = null)
+    {
+        $mapping = $this->propertyMappingFactory->fromField($obj, $fieldName, $className);
+
+        if ($mapping === null) {
+            throw new MappingNotFoundException(sprintf('Mapping not found for field "%s"', $fieldName));
+        }
+
+        return $mapping;
+    }
 }

@@ -2,7 +2,7 @@ services:
     # Upload handler
     upload.handler:
         class:        MeloLab\BioGestion\FileUploadBundle\Service\UploadHandler
-        arguments:    [ @doctrine.orm.entity_manager, @service_container, @security.context, @translator, @form.factory, @router ]            
+        arguments:    [ "@doctrine.orm.entity_manager", "@service_container", "@security.context", "@translator", "@form.factory", "@router", "@vich_uploader.property_mapping_factory" ]
 
     twig.helper_extension:
         class: MeloLab\BioGestion\FileUploadBundle\Twig\HelperExtension

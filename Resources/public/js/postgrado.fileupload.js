@@ -40,6 +40,11 @@ function FileUploadOptions () {
                 $(e.target).find('.status-menu-icon').removeClass('status-nope').addClass('status-ok');
             }
 
+            // Update status icon
+            if (data.result.ok) {
+                $("input[id*='"+data.result.hiddenField+"']").val(data.result.real_filename);
+            }
+
             // Show "Download | Replace file" div and update download link
             if (data.result.ok) {
                 $(this).find('.file-download-link').prop('href', data.result.files[0].url);
@@ -95,6 +100,7 @@ function FileUploadOptions () {
                         data.autoUpload !== false) {
                     data.submit();
                 }
+
             }).fail(function () {
                 if (data.files.error) {
                     data.context.each(function (index) {
@@ -155,6 +161,7 @@ function bindBioGestionFileUpload() {
 //            console.log(data.url);
         });
     });
+    generateFileUploadDeleteForms();
 }
 
 /**
@@ -181,4 +188,98 @@ $(document).ready(function() {
         $(this).parent().nextAll('.file-input').toggle(200);
         toggleFileReplaceLinkIcon(this);
     });
+
+    // // Show/hide file replace dialog
+    $(document).on('click', '.file-delete-link', function (e, data) {
+
+        $(this).parents('.file-input-wrap').find('.file-input').show(200);
+
+        var temp_fieldname =$(this).parents('form').find('input[id*=_'+$(this).data('temp-field-name')+']').val();
+        $(this).parents('form').nextAll('form[data-mapping='+$(this).data('mapping')+']').find('input[name*=temp_filename]').val(temp_fieldname);
+        $(this).parents('form').nextAll('form[data-mapping='+$(this).data('mapping')+']').submit();
+    });
+
+    $(document).on('submit','.fileupload-delete-form',function(e){
+        e.preventDefault();
+        var route = $(this).attr('action');
+        var method = 'POST';
+        var form = $(this).serializeArray();
+
+
+
+        $.ajax({
+            type: method,
+            url: route,
+            async: false,
+            data: form,
+            success: function(response){
+
+                if(response.ok == true){
+                    // Hide file labels
+                    $(document).find('input[data-mapping='+form[1]['value']+']').parents('.file-input-wrap').find('.fileupload-links-container').hide();
+                    // Clear download link
+                    $(document).find('input[data-mapping='+form[1]['value']+']').parents('.file-input-wrap').find('.linkPdf').attr('href','');
+                    // Remove template download row
+                    $(document).find('input[data-mapping='+form[1]['value']+']').parents('.file-input-wrap').find('tr.template-download').remove();
+
+                    //Delete temp filename from hidden field
+                    $(document).find('input[data-mapping='+form[1]['value']+']').parents('form').find('input[id*='+response.temp_file_field+']').val("");
+
+                    $.event.trigger({
+                        type: "bg.file.delete.done",
+                        message: "File upload complete",
+                        time : new Date()
+                    });
+
+                    // console.log($(document).find('input[data-mapping='+form[1]['value']+']').parents('form').find('input[id*='+response.temp_file_field+']'));
+                    // console.log(response.hidden_filename);
+                    // console.log("here1");
+                    // console.log($(document).find('input[data-mapping='+form[1]['value']+']').parents('form'));
+                    // console.log($(document).find('input[value="'+response.hidden_filename+'"]'));
+                    // console.log("here2");
+                    // Clear hidden field filename
+                }
+                else{
+                    $(document).find('input[data-mapping='+form[1]['value']+']').parents('.file-input-wrap').find('.global-error').text(response.error_message);
+                }
+
+
+            },
+            error: function(jqXHR){
+                console.log('cuec');
+                //reload page if user is loged out
+                if(typeof(jqXHR) !== 'undefined' && typeof(jqXHR.status) !== 'undefined' && jqXHR.status === 403){
+                    window.location.reload();
+                }
+            }
+        });
+    });
+
 });
+
+function generateFileUploadDeleteForms(){
+    $(document).find('.file-delete-link').each(function(){
+        if( $(this).closest('form').length > 0){
+            appendDeleteForm(this);
+        }
+    });
+}
+
+function appendDeleteForm(deleteLink){
+    // $(deleteLink).closest(form)
+    $.ajax({
+        type: 'GET',
+        url: Routing.generate('biogestion_fileupload_get_delete_form', {'mapping':$(deleteLink).data('mapping'),'id':$(deleteLink).data('eid') }),
+        async: false,
+        data: null,
+        success: function(response){
+            $(deleteLink).closest('form').after(response.render);
+        },
+        error: function(jqXHR){
+            //reload page if user is loged out
+            if(typeof(jqXHR) !== 'undefined' && typeof(jqXHR.status) !== 'undefined' && jqXHR.status === 403){
+                window.location.reload();
+            }
+        }
+    });
+}

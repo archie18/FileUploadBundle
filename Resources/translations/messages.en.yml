@@ -10,6 +10,7 @@ file.entity_not_found:                          The object was not found.
 file.select_file:                               Select a file...
 file.loading:                                   Loading...
 file.upload.unknown_error:                      The file could not be uploaded.
+file.upload.delete_error:                       The file could not be deleted.
 file.upload.post_max_size_error:                The file is too large.
 file.delete.confirm:                            Do you really want to delete this file?
 file.mapping_not_found:                         No mapping information found in the request.

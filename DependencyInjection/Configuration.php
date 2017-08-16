@@ -34,6 +34,9 @@ class Configuration implements ConfigurationInterface
                     ->defaultValue('/(\.|\/)(pdf)$/i')
                     ->info('Acceptable file extensions regular expression (global seeting), e.g. /(\.|\/)(pdf)$/i')
                 ->end()
+                ->scalarNode('temp_files_path')
+                    ->info('Temporary files storage folder')
+                ->end()
                 ->arrayNode('mappings')
                     ->useAttributeAsKey('id')
                     ->prototype('array')
@@ -56,10 +59,22 @@ class Configuration implements ConfigurationInterface
                                 ->info('Getter of the file variable. Defaults to "get<file_field>", where <file_field> '
                                         . 'is the capitalized configuration value, e.g. "getProfilePicture"')
                             ->end()
+                            ->scalarNode('file_setter')
+//                                ->isRequired()
+//                                ->cannotBeEmpty()
+                                ->info('Setter of the file variable. Defaults to "set<file_field>", where <file_field> '
+                                        . 'is the capitalized configuration value, e.g. "setProfilePicture"')
+                            ->end()
                             ->scalarNode('filename_getter')
 //                                ->isRequired()
 //                                ->cannotBeEmpty()
                                 ->info('Getter of the filename variable. Defaults to "get<file_field>Name", where '
+                                        . '<file_field> is the capitalized configuration value, e.g. "getProfilePictureName"')
+                            ->end()
+                            ->scalarNode('filename_setter')
+//                                ->isRequired()
+//                                ->cannotBeEmpty()
+                                ->info('Setter of the filename variable. Defaults to "set<file_field>Name", where '
                                         . '<file_field> is the capitalized configuration value, e.g. "getProfilePictureName"')
                             ->end()
                             ->scalarNode('vich_mapping')

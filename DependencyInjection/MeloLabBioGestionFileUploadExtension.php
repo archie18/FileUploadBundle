@@ -28,6 +28,7 @@ class MeloLabBioGestionFileUploadExtension extends Extension
         // Store params in container
         $container->setParameter('melolab_biogestion_fileupload.max_file_size', $config['max_file_size']);
         $container->setParameter('melolab_biogestion_fileupload.accepted_file_types', $config['accepted_file_types']);
+        $container->setParameter('melolab_biogestion_fileupload.temp_files_path', $config['temp_files_path']);
         $container->setParameter('melolab_biogestion_fileupload.mappings', $config['mappings']);
 
         $loader = new Loader\YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
@@ -58,9 +59,17 @@ class MeloLabBioGestionFileUploadExtension extends Extension
                     if (!isset($val1['file_getter'])) {
                         $config[$key0][$key1]['file_getter'] = 'get'.ucfirst($config[$key0][$key1]['file_field']);
                     }
+                    // Set default file_setter value
+                    if (!isset($val1['file_setter'])) {
+                        $config[$key0][$key1]['file_setter'] = 'set'.ucfirst($config[$key0][$key1]['file_field']);
+                    }
                     // Set default filename_getter value
                     if (!isset($val1['filename_getter'])) {
                         $config[$key0][$key1]['filename_getter'] = 'get'.ucfirst($config[$key0][$key1]['file_field']).'Name';
+                    }
+                    // Set default filename_getter value
+                    if (!isset($val1['filename_getter'])) {
+                        $config[$key0][$key1]['filename_setter'] = 'set'.ucfirst($config[$key0][$key1]['file_field']).'Name';
                     }
                     // Set default vich_mapping
                     if (!isset($val1['vich_mapping'])) {

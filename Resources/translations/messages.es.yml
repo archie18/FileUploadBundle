@@ -10,6 +10,7 @@ file.entity_not_found:                          El objeto no se ha encontrado.
 file.select_file:                               Seleccione...
 file.loading:                                   Cargando...
 file.upload.unknown_error:                      El archivo no pudo ser subido.
+file.upload.delete_error:                       El archivo no pudo ser borrado.
 file.upload.post_max_size_error:                El archivo es muy grande.
 file.delete.confirm:                            ¿Desea borrar este archivo?
 file.mapping_not_found:                         La información de mapeo no se ha encontrado.
