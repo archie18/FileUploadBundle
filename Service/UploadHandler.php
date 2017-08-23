@@ -159,13 +159,15 @@ class UploadHandler {
                 $response['files'][0]['url'] = $this->router->generate('biogestion_fileupload_download', array('id' => $id, 'mapping' => $mapping));
             }
             else{
-                $response['real_filename'] = $entity->getContractDigitalCopyName();
+                $filenameGetter = $this->container->getParameter('melolab_biogestion_fileupload.mappings')[$mapping]['filename_getter'];
+                $fileGetter = $this->container->getParameter('melolab_biogestion_fileupload.mappings')[$mapping]['file_getter'];
+                $response['real_filename'] = $entity->$filenameGetter();
                 $response['hiddenField'] = $fileField . '_fileuploadtemp';
 
                 $tempPath = $fileField = $this->container->getParameter('melolab_biogestion_fileupload.temp_files_path');
-                $filename = $entity->getContractDigitalCopyName();
+                $filename = $entity->$filenameGetter();
 
-                $entity->getContractDigitalCopy()->move($tempPath,$filename);
+                $entity->$fileGetter()->move($tempPath,$filename);
                 $response['files'][0]['url'] = $this->router->generate('biogestion_fileupload_download_temp', array('filename' => $filename, 'mapping' => $mapping));
 //                var_dump($entity->getContractDigitalCopy()->getRealPath());
 //                var_dump($entity->getContractDigitalCopyName());
@@ -198,6 +200,7 @@ class UploadHandler {
             foreach ($form->get($fileField)->getErrors() as $error) {
                 $errorMessages[] = $error->getMessage();
             }
+//            var_dump($form->getErrors());
             
             // Other errors
             if (!$errorMessages) {
@@ -243,24 +246,30 @@ class UploadHandler {
                 //$vichMapping = $this->container->get('vich_uploader.upload_handler')->getMapping($entity, $fileField)->getMappingName();
                 $vichMapping = $this->getMapping($entity, $fileField)->getMappingName();
 
-
+                //This loop will always find a value, if not, is a configuration error
+                foreach($this->container->getParameter('melolab_biogestion_fileupload.mappings') as $key => $value){
+                    if($value["vich_mapping"] === $vichMapping){
+                        $mapping = $key;
+                    }
+                }
 
 //                $vichMapping = $this->container->getParameter('melolab_biogestion_fileupload.mappings')[$mapping]['vich_mapping'];
                 $uploadFolder = $this->container->getParameter('vich_uploader.mappings')[$vichMapping]['upload_destination'];
                 $tempFolder = $this->container->getParameter('melolab_biogestion_fileupload.temp_files_path');
-//                $fileField = $this->container->getParameter('melolab_biogestion_fileupload.mappings')[$mapping]['file_field'];
+                $setterMethod = $this->container->getParameter('melolab_biogestion_fileupload.mappings')[$mapping]['filename_setter'];
                 $filename = $form->get($fileField."_fileuploadtemp")->getData();
 
-                try{
-
-                    $file = new File($tempFolder.'/'.$filename);
-                    $file->move($uploadFolder,$filename);
-                } catch(\Exception $e){
-                    $form->get($fileField)->addError(new FormError($this->translator->trans('file.upload.unknown_error')));
-                    $result = false;
+                if($filename){
+                    try{
+                        $file = new File($tempFolder.'/'.$filename);
+                        $file->move($uploadFolder,$filename);
+                    } catch(\Exception $e){
+                        $form->get($fileField)->addError(new FormError($this->translator->trans('file.upload.unknown_error')));
+                        $result = false;
+                    }
                 }
 
-                $setterMethod = $this->container->getParameter('melolab_biogestion_fileupload.mappings')['contract_digital_copy']['filename_setter'];
+//                $setterMethod = $this->container->getParameter('melolab_biogestion_fileupload.mappings')['contract_digital_copy']['filename_setter'];
                 $entity->$setterMethod($filename);
             }
         }

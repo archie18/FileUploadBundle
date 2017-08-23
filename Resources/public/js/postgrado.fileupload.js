@@ -192,11 +192,16 @@ $(document).ready(function() {
     // // Show/hide file replace dialog
     $(document).on('click', '.file-delete-link', function (e, data) {
 
-        $(this).parents('.file-input-wrap').find('.file-input').show(200);
+        if(confirm(Translator.trans('file.delete.confirm'))){
 
-        var temp_fieldname =$(this).parents('form').find('input[id*=_'+$(this).data('temp-field-name')+']').val();
-        $(this).parents('form').nextAll('form[data-mapping='+$(this).data('mapping')+']').find('input[name*=temp_filename]').val(temp_fieldname);
-        $(this).parents('form').nextAll('form[data-mapping='+$(this).data('mapping')+']').submit();
+            $(this).parents('.file-input-wrap').find('.file-input').show(200);
+
+            var temp_fieldname =$(this).parents('form').find('input[id*=_'+$(this).data('temp-field-name')+']').val();
+            $(this).parents('form').nextAll('form[data-mapping='+$(this).data('mapping')+']').find('input[name*=temp_filename]').val(temp_fieldname);
+            $(this).parents('form').nextAll('form[data-mapping='+$(this).data('mapping')+']').submit();
+        }
+
+
     });
 
     $(document).on('submit','.fileupload-delete-form',function(e){

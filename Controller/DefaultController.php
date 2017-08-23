@@ -168,6 +168,7 @@ class DefaultController extends Controller
 //            var_dump($form->get('mapping')->getData());
 //            var_dump($form->get('temp_filename')->getData());
 
+            $entityClass = $this->container->getParameter('melolab_biogestion_fileupload.mappings')[$mapping]['entity'];
             $fileField = $this->container->getParameter('melolab_biogestion_fileupload.mappings')[$mapping]['file_field'];
             $fileSetterMethod = $this->container->getParameter('melolab_biogestion_fileupload.mappings')[$mapping]['file_setter'];
             $fileNameSetterMethod = $this->container->getParameter('melolab_biogestion_fileupload.mappings')[$mapping]['filename_setter'];
@@ -179,25 +180,25 @@ class DefaultController extends Controller
 
                 try{
                     $fs = new Filesystem();
-                    $fs->remove($tempFolder.'/asdf'.$filename);
+                    $fs->remove($tempFolder.'/'.$filename);
 
                     if($fs->exists($tempFolder.'/'.$filename)){
                         $data['ok'] = false;
-                        $data['error_message'] = $this->get('translator')->trans('file.upload.delete_error');
+                        $data['error_message'] = $this->get('translator')->trans('file.upload.delete_error').'1';
                     }else{
                         $data['ok'] = true;
                         $data['temp_file_field'] = $fileField.'_fileuploadtemp';
                     }
                 } catch(\Exception $e){
                     $data['ok'] = false;
-                    $data['error_message'] = $this->get('translator')->trans('file.upload.delete_error');
+                    $data['error_message'] = $this->get('translator')->trans('file.upload.delete_error').'2';
                 }
 
 
 
             }
             else{
-                $entity=$this->getDoctrine()->getRepository('MeloLabBioGestionEmployeeBundle:Contract')->findOneById($form->get('eid')->getData());
+                $entity=$this->getDoctrine()->getRepository($entityClass)->findOneById($form->get('eid')->getData());
 
                 try{
                     $this->get('vich_uploader.upload_handler')->remove($entity, $fileField);
@@ -210,14 +211,14 @@ class DefaultController extends Controller
                     $data['ok'] = true;
                 } catch(\Exception $e){
                     $data['ok'] = false;
-                    $data['error_message'] = $this->get('translator')->trans('file.upload.delete_error');
+                    $data['error_message'] = $this->get('translator')->trans('file.upload.delete_error').'3';
                 }
 
 
             }
         }else{
             $data['ok'] = false;
-            $data['error_message'] = $this->get('translator')->trans('file.upload.delete_error');
+            $data['error_message'] = $this->get('translator')->trans('file.upload.delete_error').'4';
         }
 
         return new \Symfony\Component\HttpFoundation\Response(json_encode($data), 200, array('Content-Type' => 'application/json'));
