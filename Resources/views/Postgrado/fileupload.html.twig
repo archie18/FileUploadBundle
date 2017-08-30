@@ -24,6 +24,9 @@
 {% if not download_route is defined %}
     {% set download_route = 'biogestion_fileupload_download' %}
 {% endif %}
+{% if not download_route_temp is defined %}
+    {% set download_route_temp = 'biogestion_fileupload_download_temp' %}
+{% endif %}
 {% if not enable_delete is defined %}
     {% set enable_delete = false %}
 {% endif %}
@@ -58,9 +61,8 @@
     {% endif %}
 {#    <div class="status-menu-icon glyphicon {% if filename %}status-ok{% else %}status-nope{% endif %}"></div>#}
     <div><b>{{ field_label }}</b></div>
-    
-    <div class="fileupload-links-container" {% if not filename %} style="display: none" {% endif %}>
-        {% if links_label is defined %}{{ links_label }} {% endif %}<a target="_blank" class="linkPdf file-download-link" href="{% if entity_id %}{{ path(download_route, {'id': entity_id, 'mapping': mapping})}}{% endif %}">{{ 'file.download'|trans }}<span class="glyphicon glyphicon-download-alt" style="margin-left: 2px;"></span></a>
+    <div class="fileupload-links-container" {% if filename or attribute(form,field_name~'_fileuploadtemp').vars.value|length > 0 %}{% else %} style="display: none" {% endif %}>
+        {% if links_label is defined %}{{ links_label }} {% endif %}<a target="_blank" class="linkPdf file-download-link" href="{% if entity_id %}{{ path(download_route, {'id': entity_id, 'mapping': mapping})}}{% elseif attribute(form,field_name~'_fileuploadtemp').vars.value|length > 0 %}{{ path(download_route_temp,{'filename':attribute(form,field_name~'_fileuploadtemp').vars.value, 'mapping':mapping}) }}{% endif %}">{{ 'file.download'|trans }}<span class="glyphicon glyphicon-download-alt" style="margin-left: 2px;"></span></a>
 {#        | <a href="javascript:void(0)" class="file-replace-link">{{ 'file.replace'|trans }}<span class="glyphicon glyphicon-triangle-bottom" style="margin-left: 2px;"></span></a>#}
         | <a href="javascript:void(0)" class="file-replace-link">{{ 'file.replace'|trans }}<span class="mdi mdi-menu-down" style="margin-left: -3px; font-size: 1.3em; vertical-align: sub"></span></a>
         {% if enable_delete %}
@@ -89,3 +91,4 @@
     </div>
 </div>
 <div style="clear:both"></div>
+{{ form_row(attribute(form,field_name~'_fileuploadtemp')) }}
