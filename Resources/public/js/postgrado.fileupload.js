@@ -275,7 +275,7 @@ function appendDeleteForm(deleteLink){
     $.ajax({
         type: 'GET',
         url: Routing.generate('biogestion_fileupload_get_delete_form', {'mapping':$(deleteLink).data('mapping'),'id':$(deleteLink).data('eid') }),
-        async: false,
+        // async: false,
         data: null,
         success: function(response){
             $(deleteLink).closest('form').after(response.render);
