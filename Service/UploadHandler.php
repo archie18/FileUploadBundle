@@ -217,7 +217,9 @@ class UploadHandler {
         }
 
         $response['ok'] = $ok;
-        
+        $response['id'] = $id;
+//        var_dump($id);
+
         // Fix for IE9
         if (!in_array('application/json', $request->getAcceptableContentTypes())) {
             $contentType = 'text/plain';
