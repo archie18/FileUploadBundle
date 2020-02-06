@@ -30,8 +30,8 @@ class DefaultController extends Controller
         
         $mappings = $this->container->getParameter('melolab_biogestion_fileupload.mappings');
         $config = $mappings[$mapping];
-                
-        $entity = $this->getDoctrine()->getManager()->getRepository($config['entity'])->$config['repository_method']($id);
+
+        $entity = $this->getDoctrine()->getManager()->getRepository($config['entity'])->{$config['repository_method']}($id);
 
         if (!$entity) {
             throw $this->createNotFoundException($this->get('translator')->trans('file.entity_not_found'));
@@ -65,7 +65,7 @@ class DefaultController extends Controller
         );
         
         // Get filename
-        $filename = $entity->$config['filename_getter']();
+        $filename = $entity->{$config['filename_getter']}();
         
         if (!$filename) {
             throw $this->createNotFoundException($this->get('translator')->trans('file.file_not_found'));
