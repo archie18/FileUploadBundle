@@ -36,6 +36,9 @@
 {% if not field_label is defined and field_name is defined %}
     {% set field_label =  fileupload_generate_field_label(field_name) %}
 {% endif %}
+{% if not disable_validation is defined %}
+    {% set disable_validation = false %}
+{% endif %}
 {#{% if not links_label is defined and field_label is defined %}
     {% set links_label =  field_label ~ ':' %}
 {% endif %}
@@ -71,7 +74,8 @@
         {% endif %}
     </div>
     <div><strong class="global-error text-danger"></strong></div>
-    <div class="file-input" style="{% if not filename or form_errors(form_field) %}display: block{% endif %}" data-maxfilesize="{{ fileupload_max_file_size(mapping) }}" data-acceptedfiletypes="{{ fileupload_accepted_file_types(mapping)}}" >
+    <div class="file-input" style="{% if not filename or form_errors(form_field) %}display: block{% endif %}" data-maxfilesize="{{ fileupload_max_file_size(mapping) }}" data-acceptedfiletypes="{{ fileupload_accepted_file_types(mapping)}}" data-disablevalidation="{{ disable_validation }}">
+
         <!-- jQuery File Upload -->
         <div class="fileupload-buttonbar">
             <span class="btn btn-primary fileinput-button">
