@@ -58,6 +58,13 @@ function FileUploadOptions () {
             if (data.result.ok && data.result.formAction) {
                 $(this).parents('form').prop('action', data.result.formAction);
             }
+
+            //This trigger calls refresh for every .refresh panel with id = result.id
+            //bg.file.delete.done trigger is in postgradostrap.js
+            $.event.trigger({
+                type: "bg.file.delete.done",
+            }, [data.result.id]);
+
         };
         this.formData = function (form) {
             return form.find('input[id$=__token]').serializeArray(); // Only include CRSF token, ignore other form fields
@@ -99,6 +106,7 @@ function FileUploadOptions () {
                         (options.autoUpload || data.autoUpload) &&
                         data.autoUpload !== false) {
                     data.submit();
+                    console.log("SUBMIT");
                 }
 
             }).fail(function () {
@@ -209,8 +217,7 @@ $(document).ready(function() {
         var route = $(this).attr('action');
         var method = 'POST';
         var form = $(this).serializeArray();
-
-
+        var id = $(this).find('#form_eid').val();
 
         $.ajax({
             type: method,
@@ -230,11 +237,12 @@ $(document).ready(function() {
                     //Delete temp filename from hidden field
                     $(document).find('input[data-mapping='+form[1]['value']+']').parents('form').find('input[id*='+response.temp_file_field+']').val("");
 
+                    //To refresh entity panel
                     $.event.trigger({
                         type: "bg.file.delete.done",
                         message: "File upload complete",
                         time : new Date()
-                    });
+                    }, [id]);
 
                     // console.log($(document).find('input[data-mapping='+form[1]['value']+']').parents('form').find('input[id*='+response.temp_file_field+']'));
                     // console.log(response.hidden_filename);
