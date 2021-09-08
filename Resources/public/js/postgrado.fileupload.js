@@ -16,7 +16,7 @@ function FileUploadOptions () {
     //    url: url,
         this.dataType = 'json';
         this.maxFileSize = 5 * 1024 * 1024; // 5 MB default, should be overwritten by config
-        this.acceptFileTypes = /(\.|\/)(pdf)$/i; // PDF default, should be overwritten by config
+        this.acceptFileTypes = /(\.|\/)(pdf|doc|docx)$/i; // PDF default, should be overwritten by config
         this.maxNumberOfFiles = 1;
         this.limitConcurrentUploads = 1;
         this.messages = {
@@ -88,7 +88,7 @@ function FileUploadOptions () {
             options.filesContainer[
                 options.prependFiles ? 'prepend' : 'append'
             ](data.context);
-            console.log(options);
+            //console.log(options);
             that._forceReflow(data.context);
             that._transition(data.context);
             data.process(function () {
@@ -141,6 +141,7 @@ function bindBioGestionFileUpload() {
         // }
         //
         // console.log(fileUploadOption);
+        console.log("MI TEST1");
         // $('.fileupload-anchor').fileupload(fileUploadOption);
         $('.fileupload-anchor').each(function(){
             var fileUploadOption = new FileUploadOptions();
@@ -148,8 +149,10 @@ function bindBioGestionFileUpload() {
                 fileUploadOption.setMaxFilesize($(this).find('.file-input').data('maxfilesize'));
             }
             if($(this).find('.file-input').data('acceptedfiletypes') !== undefined ){
-                fileUploadOption.acceptedFileTypes = $(this).find('.file-input').data('acceptedfiletypes');
+                fileUploadOption.acceptFileTypes = $(this).find('.file-input').data('acceptedfiletypes');
             }
+            console.log("MI TEST2");
+            console.log(fileUploadOption.acceptFileTypes);
             $(this).fileupload(fileUploadOption);
         });
 
