@@ -12,9 +12,7 @@
         }
     ],
     "require": {
-        "php": ">=5.3.3",
-        "symfony/symfony": "~2.0",
-        "doctrine/orm": "~2.2"
+        "php": "^7.1",
     },
     "autoload": {
         "psr-0": { "MeloLab\\BioGestion\\FileUploadBundle": "" }
@@ -22,7 +20,8 @@
     "target-dir": "MeloLab/BioGestion/FileUploadBundle",
     "extra": {
         "branch-alias": {
-            "dev-master": "0.1.x-dev"
+            "dev-master": "0.1.x-dev",
+            "dev-symfony5_php74": "dev-symfony5_php74"
         }
     }
 }
