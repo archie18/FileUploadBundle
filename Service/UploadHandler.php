@@ -3,6 +3,7 @@
 namespace MeloLab\BioGestion\FileUploadBundle\Service;
 
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use RuntimeException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Form\Form;
@@ -15,9 +16,11 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\RouterInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationChecker;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\Security\Core\SecurityContext;
-use Symfony\Component\Translation\TranslatorInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Vich\UploaderBundle\Exception\MappingNotFoundException;
 use Vich\UploaderBundle\Handler\AbstractHandler;
 use Vich\UploaderBundle\Mapping\PropertyMappingFactory;
@@ -56,7 +59,7 @@ class UploadHandler {
     private $propertyMappingFactory;
 
 
-    public function __construct(EntityManager $em, ContainerInterface $container, SecurityContext $securityContext, TranslatorInterface $translator, FormFactoryInterface $formFactory, RouterInterface $router, PropertyMappingFactory $propertyMappingFactory) {
+    public function __construct(EntityManagerInterface $em, ContainerInterface $container, AuthorizationCheckerInterface $securityContext,TranslatorInterface  $translator, FormFactoryInterface $formFactory, RouterInterface $router, PropertyMappingFactory $propertyMappingFactory) {
         $this->em = $em;
         $this->container = $container;
         $this->securityContext = $securityContext;
@@ -74,7 +77,7 @@ class UploadHandler {
      * @return Response
      * @throws Exception
      */
-    public function handleUpload(Request $request, $id, FormTypeInterface $formType = null, $formOptions = array(), $isAdd = false) {
+    public function handleUpload(Request $request, $id, $formType = null, $formOptions = array(), $isAdd = false) {
         // Get mapping key for config access
         $mapping = $request->query->get('mapping');
         if (!$mapping) {
@@ -90,7 +93,8 @@ class UploadHandler {
         $allowAnonymousUploads = $this->container->getParameter('melolab_biogestion_fileupload.mappings')[$mapping]['allow_anonymous_uploads'];
 //        var_dump($this->get('vich_uploader.metadata_reader')->getUploadableFields(\Symfony\Component\Security\Core\Util\ClassUtils::getRealClass($lr)));
 //        var_dump($this->container->getParameter('melolab_biogestion_fileupload.mappings'));
-//        var_dump($this->container->getParameter('vich_uploader.mappings')); die();
+//        var_dump($this->container->getParameter('vich_uploader.mappings'));
+        //die();
 
         // Fetch existing entity
         if ($id) {
@@ -117,7 +121,7 @@ class UploadHandler {
             }
         }
 
-        $form = $this->formFactory->create(new $formType(), $entity, $formOptions);
+        $form = $this->formFactory->create($formType, $entity, $formOptions);
 
 //        // Submit form without overwriting entity values with nulls.
 //        // Actually, we just want to validate the token and file upload
@@ -133,7 +137,7 @@ class UploadHandler {
         if ($file) {
             $response = array('files' => array(array(
                 'name' => $file->getClientOriginalName() ,
-                'size' => $file->getClientSize(),
+                'size' => $file->getSize(),
                 'type' => $file->getClientMimeType(),
             )));
         } else {

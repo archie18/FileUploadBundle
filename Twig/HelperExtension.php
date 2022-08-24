@@ -6,6 +6,7 @@ use MeloLab\BioGestion\ProductivityBundle\Form\SelectEmployeeType;
 use MeloLab\BioGestion\ProductivityBundle\Service\FilterHandler;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Form\FormFactoryInterface;
+use Twig\TwigFunction;
 
 /**
  * @author Andreas Schueller <aschueller@bio.puc.cl>
@@ -27,10 +28,10 @@ class HelperExtension extends \Twig_Extension
     
     public function getFunctions() {
         return array(
-            'fileupload_max_file_size' => new \Twig_Function_Method($this, 'fileuploadMaxFileSize'),
-            'fileupload_accepted_file_types' => new \Twig_Function_Method($this, 'fileuploadAcceptedFileTypes'),
-            'fileupload_config' => new \Twig_Function_Method($this, 'fileuploadConfiguration'),
-            'fileupload_generate_field_label' => new \Twig_Function_Method($this, 'generateUploadFieldLabel'),
+            new TwigFunction('fileupload_max_file_size',[$this, 'fileuploadMaxFileSize']),
+            new TwigFunction('fileupload_accepted_file_types',[$this, 'fileuploadAcceptedFileTypes']),
+            new TwigFunction('fileupload_config',[$this, 'fileuploadConfiguration']),
+            new TwigFunction('fileupload_generate_field_label',[$this, 'generateUploadFieldLabel']),
         );
     }
     

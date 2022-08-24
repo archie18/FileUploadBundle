@@ -141,7 +141,7 @@ function bindBioGestionFileUpload() {
         // }
         //
         // console.log(fileUploadOption);
-        console.log("MI TEST1");
+        // console.log("MI TEST1");
         // $('.fileupload-anchor').fileupload(fileUploadOption);
         $('.fileupload-anchor').each(function(){
             var fileUploadOption = new FileUploadOptions();
@@ -151,8 +151,8 @@ function bindBioGestionFileUpload() {
             if($(this).find('.file-input').data('acceptedfiletypes') !== undefined ){
                 fileUploadOption.acceptFileTypes = $(this).find('.file-input').data('acceptedfiletypes');
             }
-            console.log("MI TEST2");
-            console.log(fileUploadOption.acceptFileTypes);
+            // console.log("MI TEST2");
+            // console.log(fileUploadOption);
             $(this).fileupload(fileUploadOption);
         });
 
