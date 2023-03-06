@@ -21,7 +21,7 @@ class DefaultController extends Controller
     
     /**
      * Download attached files
-     * @Route("/download/{id}/{mapping}/{ignore_security}", name="biogestion_fileupload_download", defaults={"ignore_security"="false"})
+     * @Route("/download/{id}/{mapping}", name="biogestion_fileupload_download")
      */
     public function downloadAction(Request $request, $id, $mapping) {
         return $this->container->get('upload.handler')->downloadActionHelper($request, $id, $mapping);
