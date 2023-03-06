@@ -344,6 +344,10 @@ class UploadHandler {
         $mappings = $this->container->getParameter('melolab_biogestion_fileupload.mappings');
         $config = $mappings[$mapping];
 
+        if (!$config) {
+            throw new NotFoundHttpException($this->translator->trans('file.entity_not_found'));
+        }
+
         $entity = $this->em->getRepository($config['entity'])->{$config['repository_method']}($id);
 
         if (!$entity) {
